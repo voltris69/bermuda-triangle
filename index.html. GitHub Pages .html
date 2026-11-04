@@ -1,0 +1,622 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Тайны Бермудского треугольника</title>
+<style>
+  :root {
+    --bg: #07141f;
+    --card: rgba(255,255,255,0.04);
+    --line: rgba(255,255,255,0.1);
+    --text: #e8f1f7;
+    --muted: #9bb3c4;
+    --gold: #f2b84b;
+    --red: #ff5d6c;
+    --teal: #3fd0c9;
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; scroll-padding-top: 80px; }
+  body {
+    margin: 0;
+    font-family: "Georgia", "Times New Roman", serif;
+    background: radial-gradient(ellipse at top, #123a54 0%, var(--bg) 60%) fixed, var(--bg);
+    color: var(--text);
+    line-height: 1.7;
+  }
+  a { color: var(--teal); }
+
+  nav {
+    position: sticky; top: 0; z-index: 10;
+    background: rgba(7,20,31,0.85);
+    backdrop-filter: blur(8px);
+    border-bottom: 1px solid var(--line);
+    display: flex; gap: 6px; justify-content: center; flex-wrap: wrap;
+    padding: 10px 12px;
+    font-family: system-ui, sans-serif; font-size: 14px;
+  }
+  nav a { color: var(--muted); text-decoration: none; padding: 6px 12px; border-radius: 999px; }
+  nav a:hover, nav a.active { color: var(--bg); background: var(--gold); }
+
+  .wrap { max-width: 920px; margin: 0 auto; padding: 0 20px; }
+
+  header.hero { text-align: center; padding: 90px 20px 70px; position: relative; overflow: hidden; }
+  .kicker { font-family: system-ui, sans-serif; letter-spacing: 4px; font-size: 12px; color: var(--gold); text-transform: uppercase; }
+  header.hero h1 { font-size: clamp(36px, 7vw, 64px); line-height: 1.1; margin: 14px 0 18px; font-weight: 700; }
+  .lead { color: var(--muted); max-width: 620px; margin: 0 auto 30px; font-size: 18px; }
+  .btn {
+    display: inline-block; text-decoration: none;
+    font-family: system-ui, sans-serif; font-size: 15px;
+    padding: 12px 22px; border-radius: 10px; margin: 6px;
+    transition: transform .15s, background .15s;
+  }
+  .btn:hover { transform: translateY(-2px); }
+  .btn-primary { background: var(--gold); color: var(--bg); font-weight: 600; }
+  .btn-ghost { border: 1px solid var(--line); color: var(--text); }
+  .btn-ghost:hover { border-color: var(--gold); }
+  .waves { position: absolute; left: 0; right: 0; bottom: -2px; height: 60px; opacity: .35; }
+
+  section { padding: 60px 0; border-top: 1px solid var(--line); }
+  section h2 { font-size: 30px; margin: 0 0 10px; }
+  section h2 .num { color: var(--gold); font-size: 16px; font-family: system-ui, sans-serif; vertical-align: middle; margin-right: 8px; }
+  section h3 { font-size: 21px; margin: 28px 0 8px; }
+  .sub { color: var(--muted); margin-bottom: 26px; }
+  .prose p { color: var(--text); margin: 0 0 14px; }
+  .prose p.muted { color: var(--muted); }
+
+  .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; margin: 24px 0; }
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 20px; }
+  .card .big { font-size: 26px; color: var(--gold); font-weight: 700; }
+  .card .tag { font-family: system-ui, sans-serif; font-size: 12px; color: var(--teal); text-transform: uppercase; letter-spacing: 1px; }
+  .card p { margin: 6px 0 0; color: var(--muted); font-size: 15px; }
+  .card h3 { margin: 0 0 8px; font-size: 19px; }
+  .card ul { margin: 8px 0 0; padding-left: 20px; color: var(--muted); }
+  .card li { margin: 4px 0; }
+
+  .note { border-left: 3px solid var(--gold); background: var(--card); padding: 14px 18px; border-radius: 8px; color: var(--muted); font-size: 15px; margin: 20px 0; }
+
+  .map-box { background: linear-gradient(180deg, #0a2a3f, #061722); border: 1px solid var(--line); border-radius: 18px; padding: 16px; position: relative; }
+  #map-svg { width: 100%; height: auto; display: block; }
+  .ocean-line { stroke: rgba(63,208,201,0.08); stroke-width: 1; }
+  .land { fill: #1d4a5e; stroke: #3a7088; stroke-width: 1; }
+  .triangle { fill: rgba(255,93,108,0.14); stroke: var(--red); stroke-width: 2; stroke-dasharray: 8 6; animation: dash 30s linear infinite; }
+  @keyframes dash { to { stroke-dashoffset: -400; } }
+  .point { cursor: pointer; }
+  .point circle.core { fill: var(--gold); stroke: #fff; stroke-width: 1.5; transition: r .2s; }
+  .point.incident circle.core { fill: var(--red); }
+  .point.sea circle.core { fill: var(--teal); }
+  .point:hover circle.core, .point:focus circle.core { r: 8; }
+  .point circle.ring { fill: none; stroke: var(--red); stroke-width: 1.5; opacity: .6; animation: pulse 2.4s ease-out infinite; transform-box: fill-box; transform-origin: center; }
+  .point.vertex circle.ring { stroke: var(--gold); }
+  @keyframes pulse { 0% { transform: scale(1); opacity: .7; } 100% { transform: scale(2.6); opacity: 0; } }
+  .map-label { fill: var(--text); font-family: system-ui, sans-serif; font-size: 13px; pointer-events: none; }
+  .map-label.small { font-size: 11px; fill: var(--muted); }
+  .grid-text { fill: rgba(155,179,196,0.5); font-family: system-ui, sans-serif; font-size: 10px; }
+  .sea-zone { fill: rgba(63,208,201,0.06); stroke: rgba(63,208,201,0.35); stroke-width: 1; stroke-dasharray: 3 4; }
+
+  .legend { display: flex; flex-wrap: wrap; gap: 10px 18px; font-family: system-ui, sans-serif; font-size: 14px; color: var(--muted); margin: 14px 4px 0; }
+  .legend span::before { content: ""; display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-right: 6px; vertical-align: middle; }
+  .legend .l-vertex::before { background: var(--gold); }
+  .legend .l-inc::before { background: var(--red); }
+  .legend .l-sea::before { background: var(--teal); }
+  .legend .l-zone::before { background: rgba(255,93,108,0.4); border-radius: 2px; }
+
+  .toggles { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 14px; font-family: system-ui, sans-serif; }
+  .toggles button { background: transparent; color: var(--muted); border: 1px solid var(--line); border-radius: 999px; padding: 6px 14px; cursor: pointer; font-size: 14px; }
+  .toggles button.on { color: var(--bg); background: var(--teal); border-color: var(--teal); }
+
+  .info { margin-top: 16px; background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 18px 20px; min-height: 120px; }
+  .info h3 { margin: 0 0 6px; font-size: 20px; color: var(--gold); }
+  .info p { margin: 0; color: var(--muted); font-size: 15px; }
+  .info .when { font-family: system-ui, sans-serif; font-size: 12px; color: var(--red); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 4px; }
+
+  .story { display: grid; grid-template-columns: 120px 1fr; gap: 18px; padding: 20px 0; border-bottom: 1px dashed var(--line); }
+  .story:last-child { border-bottom: none; }
+  .story .date { font-family: system-ui, sans-serif; color: var(--gold); font-size: 15px; font-weight: 600; padding-top: 4px; }
+  .story h3 { margin: 0 0 6px; font-size: 20px; }
+  .story p { margin: 0 0 8px; color: var(--muted); }
+  .story .fact { font-family: system-ui, sans-serif; font-size: 14px; color: var(--teal); }
+
+  .split { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  @media (max-width: 640px) {
+    .split, .story { grid-template-columns: 1fr; }
+    .story .date { padding-top: 0; }
+  }
+
+  .verdict { text-align: center; margin-top: 22px; padding: 22px; border: 1px solid var(--gold); border-radius: 14px; background: rgba(242,184,75,0.06); }
+
+  .timeline { position: relative; margin: 20px 0; padding-left: 22px; border-left: 2px solid var(--line); }
+  .timeline .item { position: relative; margin-bottom: 18px; }
+  .timeline .item::before { content: ""; position: absolute; left: -29px; top: 7px; width: 12px; height: 12px; border-radius: 50%; background: var(--gold); }
+  .timeline .y { font-family: system-ui, sans-serif; color: var(--gold); font-size: 14px; font-weight: 600; }
+  .timeline .t { color: var(--muted); }
+
+  .quiz-q { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 18px 20px; margin-bottom: 14px; }
+  .quiz-q h3 { margin: 0 0 12px; font-size: 17px; }
+  .opts { display: flex; flex-direction: column; gap: 8px; }
+  .opt { text-align: left; font: inherit; color: var(--text); background: rgba(255,255,255,0.03); border: 1px solid var(--line); border-radius: 10px; padding: 10px 14px; cursor: pointer; transition: background .15s, border-color .15s; }
+  .opt:hover:not(:disabled) { border-color: var(--teal); }
+  .opt.selected { border-color: var(--gold); background: rgba(242,184,75,0.1); }
+  .opt.correct { border-color: #5fd38d; background: rgba(95,211,141,0.15); }
+  .opt.wrong { border-color: var(--red); background: rgba(255,93,108,0.15); }
+  .opt:disabled { cursor: default; }
+  .quiz-actions { text-align: center; margin-top: 20px; }
+  .quiz-actions button { font: inherit; font-family: system-ui, sans-serif; font-size: 16px; background: var(--gold); color: var(--bg); font-weight: 600; border: none; border-radius: 10px; padding: 12px 26px; cursor: pointer; }
+  .quiz-actions button:disabled { opacity: .4; cursor: not-allowed; }
+  .quiz-actions .restart { background: transparent; color: var(--gold); border: 1px solid var(--gold); margin-left: 8px; }
+  .result { margin-top: 18px; text-align: center; font-size: 20px; color: var(--gold); }
+  .progress { height: 6px; background: var(--line); border-radius: 999px; overflow: hidden; margin-bottom: 20px; }
+  .progress > div { height: 100%; width: 0; background: var(--teal); transition: width .3s; }
+
+  .sources ol { padding-left: 22px; }
+  .sources li { margin-bottom: 14px; }
+  .sources li a { font-weight: 600; }
+  .sources li span { display: block; color: var(--muted); font-size: 15px; }
+
+  footer { text-align: center; color: var(--muted); font-family: system-ui, sans-serif; font-size: 14px; padding: 40px 20px; border-top: 1px solid var(--line); }
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="#about">О районе</a>
+  <a href="#map">Карта</a>
+  <a href="#history">Истории</a>
+  <a href="#science">Наука</a>
+  <a href="#myths">Мифы</a>
+  <a href="#quiz">Викторина</a>
+  <a href="#sources">Источники</a>
+</nav>
+
+<header class="hero">
+  <svg class="waves" viewBox="0 0 1440 60" preserveAspectRatio="none" aria-hidden="true">
+    <path fill="#3fd0c9" d="M0,30 C240,60 480,0 720,30 C960,60 1200,0 1440,30 L1440,60 L0,60 Z"/>
+  </svg>
+  <div class="kicker">Географический проект</div>
+  <h1>Тайны Бермудского треугольника</h1>
+  <p class="lead">Исследование знаменитого района Северной Атлантики: его география, реальные происшествия, популярные мифы и научные объяснения.</p>
+  <a class="btn btn-primary" href="#about">Начать исследование ↓</a>
+  <a class="btn btn-ghost" href="#quiz">Сразу к викторине</a>
+</header>
+
+<div class="wrap">
+
+<section id="about">
+  <h2><span class="num">01</span>Что такое Бермудский треугольник?</h2>
+  <p class="sub">Неофициальное название условно обозначаемого района западной части Северной Атлантики.</p>
+  <div class="prose">
+    <p>Обычно его связывают с Бермудскими островами, южной Флоридой и Пуэрто-Рико. NOAA отмечает, что официальных границ этой зоны не существует. Разные авторы проводят границы по-разному, поэтому площадь обычно называют приблизительно: её часто оценивают примерно в 500 тысяч квадратных миль.</p>
+    <p>Название появилось не в научных трудах. Его ввёл журналист Винсент Гэддис в статье 1964 года, а в 1974 году книга Чарльза Берлица сделала эту тему массовой. С тех пор легенда стала одной из самых известных в популярной культуре.</p>
+  </div>
+  <div class="cards">
+    <div class="card"><div class="tag">Географическое положение</div><div class="big">Атлантика</div><p>Район находится в западной части Северной Атлантики, между Флоридой, Бермудами и Антильскими островами.</p></div>
+    <div class="card"><div class="tag">Условная схема</div><div class="big">3 точки</div><p>Бермуды, Майами и Сан-Хуан часто используют для обозначения треугольника.</p></div>
+    <div class="card"><div class="tag">Официальный статус</div><div class="big">Без границ</div><p>Это не отдельное море и не официально установленная географическая зона.</p></div>
+  </div>
+
+  <h3>Кто здесь живёт и плавает</h3>
+  <div class="prose">
+    <p>Бермуды — британская заморская территория с населением около 60 тысяч человек. Пуэрто-Рико является территорией США, а Майами — крупным портом и аэропортом, через который проходит много рейсов в Карибский регион. Из-за этого район один из самых оживлённых для морских и воздушных перевозок в западной Атлантике.</p>
+    <p class="muted">Высокая интенсивность движения — одна из причин, почему здесь фиксируют много происшествий. По статистике, на любом большом участке океана с таким трафиком число аварий будет заметным.</p>
+  </div>
+</section>
+
+<section id="map">
+  <h2><span class="num">02</span>Интерактивная карта</h2>
+  <p class="sub">Наведите или нажмите на точку, чтобы узнать подробности. Границы треугольника условны.</p>
+
+  <div class="toggles">
+    <button class="on" data-layer="zone">Зона треугольника</button>
+    <button class="on" data-layer="vertex">Вершины</button>
+    <button class="on" data-layer="incident">Происшествия</button>
+    <button class="on" data-layer="sea">Саргассово море</button>
+  </div>
+
+  <div class="map-box">
+    <svg id="map-svg" viewBox="0 0 600 450" role="img" aria-label="Карта Бермудского треугольника">
+      <g>
+        <line class="ocean-line" x1="0" y1="90" x2="600" y2="90"/>
+        <line class="ocean-line" x1="0" y1="180" x2="600" y2="180"/>
+        <line class="ocean-line" x1="0" y1="270" x2="600" y2="270"/>
+        <line class="ocean-line" x1="0" y1="360" x2="600" y2="360"/>
+        <line class="ocean-line" x1="120" y1="0" x2="120" y2="450"/>
+        <line class="ocean-line" x1="240" y1="0" x2="240" y2="450"/>
+        <line class="ocean-line" x1="360" y1="0" x2="360" y2="450"/>
+        <line class="ocean-line" x1="480" y1="0" x2="480" y2="450"/>
+        <text class="grid-text" x="8" y="86">35°N</text>
+        <text class="grid-text" x="8" y="176">30°N</text>
+        <text class="grid-text" x="8" y="266">25°N</text>
+        <text class="grid-text" x="8" y="356">20°N</text>
+        <text class="grid-text" x="124" y="12">80°W</text>
+        <text class="grid-text" x="244" y="12">70°W</text>
+        <text class="grid-text" x="364" y="12">60°W</text>
+      </g>
+
+      <!-- Саргассово море (схематично, внутри треугольника) -->
+      <ellipse id="sea" class="sea-zone" cx="290" cy="170" rx="110" ry="50" transform="rotate(-12 290 170)"/>
+      <text class="map-label small" x="250" y="140" id="sea-label">Саргассово море</text>
+
+      <!-- суша -->
+      <g>
+        <path class="land" d="M68,160 L88,188 L98,226 L90,238 L68,244 L52,222 L46,198 L56,176 Z"/>
+        <path class="land" d="M56,230 L92,206 L132,214 L124,236 L84,242 L58,236 Z"/>
+        <path class="land" d="M220,318 L300,308 L340,320 L320,338 L240,336 L220,326 Z"/>
+        <ellipse class="land" cx="160" cy="338" rx="14" ry="4"/>
+        <circle class="land" cx="126" cy="186" r="3"/>
+        <circle class="land" cx="136" cy="196" r="3"/>
+        <circle class="land" cx="146" cy="206" r="2.5"/>
+        <circle class="land" cx="122" cy="200" r="2"/>
+        <circle class="land" cx="352" cy="346" r="2"/>
+        <circle class="land" cx="368" cy="362" r="2"/>
+        <circle class="land" cx="384" cy="376" r="2"/>
+        <circle class="land" cx="402" cy="388" r="2"/>
+        <circle class="land" cx="420" cy="398" r="2"/>
+        <circle class="land" cx="440" cy="404" r="2"/>
+        <circle class="land" cx="462" cy="410" r="2"/>
+        <ellipse class="land" cx="378" cy="331" rx="11" ry="4"/>
+      </g>
+
+      <polygon id="zone" class="triangle" points="404,136 96,228 378,331"/>
+      <text class="map-label small" x="222" y="170" transform="rotate(-18 222 170)">Бермудский треугольник</text>
+
+      <g class="point vertex" data-id="bermuda" tabindex="0">
+        <circle class="ring" cx="404" cy="136" r="6"/>
+        <circle class="core" cx="404" cy="136" r="6"/>
+        <text class="map-label" x="414" y="132">Бермуды</text>
+      </g>
+      <g class="point vertex" data-id="miami" tabindex="0">
+        <circle class="ring" cx="96" cy="228" r="6"/>
+        <circle class="core" cx="96" cy="228" r="6"/>
+        <text class="map-label" x="60" y="256">Майами</text>
+      </g>
+      <g class="point vertex" data-id="sanjuan" tabindex="0">
+        <circle class="ring" cx="378" cy="331" r="6"/>
+        <circle class="core" cx="378" cy="331" r="6"/>
+        <text class="map-label" x="342" y="354">Сан-Хуан</text>
+      </g>
+
+      <g class="point incident" data-id="flight19" tabindex="0">
+        <circle class="ring" cx="110" cy="190" r="5"/>
+        <circle class="core" cx="110" cy="190" r="5"/>
+        <text class="map-label small" x="120" y="186">Flight 19</text>
+      </g>
+      <g class="point incident" data-id="cyclops" tabindex="0">
+        <circle class="ring" cx="480" cy="408" r="5"/>
+        <circle class="core" cx="480" cy="408" r="5"/>
+        <text class="map-label small" x="440" y="428">USS Cyclops</text>
+      </g>
+      <g class="point incident" data-id="sulphur" tabindex="0">
+        <circle class="ring" cx="92" cy="268" r="5"/>
+        <circle class="core" cx="92" cy="268" r="5"/>
+        <text class="map-label small" x="104" y="272">Marine Sulphur Queen</text>
+      </g>
+      <g class="point sea" data-id="sargasso" tabindex="0">
+        <circle class="core" cx="290" cy="170" r="5"/>
+      </g>
+    </svg>
+
+    <div class="legend">
+      <span class="l-vertex">Вершины условного треугольника</span>
+      <span class="l-inc">Места происшествий (примерно)</span>
+      <span class="l-sea">Саргассово море</span>
+      <span class="l-zone">Условная зона</span>
+    </div>
+  </div>
+
+  <div class="info" id="info">
+    <div class="when">Выберите точку на карте</div>
+    <h3>Бермудский треугольник</h3>
+    <p>Нажмите на любую точку, чтобы увидеть описание места.</p>
+  </div>
+</section>
+
+<section id="history">
+  <h2><span class="num">03</span>Реальные истории, ставшие легендой</h2>
+  <p class="sub">За историей Бермудского треугольника стоят реальные происшествия. Но их последующая интерпретация часто становилась гораздо более загадочной, чем исходные документы.</p>
+
+  <div class="timeline">
+    <div class="item"><div class="y">1918</div><div class="t">USS Cyclops пропадает в Карибском море</div></div>
+    <div class="item"><div class="y">1945</div><div class="t">Исчезновение Flight 19 и спасательного самолёта PBM Mariner</div></div>
+    <div class="item"><div class="y">1948</div><div class="t">Star Tiger пропадает на маршруте Бермуды — Азорские острова</div></div>
+    <div class="item"><div class="y">1963</div><div class="t">Marine Sulphur Queen исчезает у побережья Флориды</div></div>
+    <div class="item"><div class="y">1964</div><div class="t">Винсент Гэддис вводит название «Бермудский треугольник»</div></div>
+    <div class="item"><div class="y">1974</div><div class="t">Книга Чарльза Берлица делает легенду мировой известной</div></div>
+  </div>
+
+  <div class="story">
+    <div class="date">Март 1918</div>
+    <div>
+      <h3>USS Cyclops</h3>
+      <p>Грузовое судно ВМС США исчезло вместе с 306 людьми. Оно шло из Бразилии через Барбадос, где в последний раз было замечено. Причина исчезновения окончательно не установлена. Этот случай остаётся крупнейшей небоевой потерей личного состава ВМС США.</p>
+      <div class="fact">Версии: перегрузка, шторм, неисправность, поломка двигателя. Ни одна не подтверждена.</div>
+    </div>
+  </div>
+
+  <div class="story">
+    <div class="date">5 дек. 1945</div>
+    <div>
+      <h3>Flight 19</h3>
+      <p>Пять торпедоносцев TBM Avenger выполняли тренировочный навигационный полёт. Самолёты и 14 человек экипажей не вернулись. Отправленный на поиски самолёт PBM Mariner также исчез с 13 людьми на борту.</p>
+      <div class="fact">Ведущий пилот считал, что они над Флоридскими островами, хотя на самом деле они сбились с курса. Погода в тот день ухудшалась.</div>
+    </div>
+  </div>
+
+  <div class="story">
+    <div class="date">Январь 1948</div>
+    <div>
+      <h3>Star Tiger</h3>
+      <p>Самолёт Avro Tudor с 31 человеком на борту пропал на маршруте между Бермудами и Азорскими островами. Этот маршрут лежит за пределами условного треугольника, но случай часто включают в легенду.</p>
+      <div class="fact">Пример того, как происшествия без связи с районом попадают в общий список «загадок».</div>
+    </div>
+  </div>
+
+  <div class="story">
+    <div class="date">Февраль 1963</div>
+    <div>
+      <h3>Marine Sulphur Queen</h3>
+      <p>Танкер с серой пропал у побережья Флориды с 39 членами экипажа. Расследование не смогло точно установить причину, но в числе вероятных факторов называли техническую неисправность и плохую погоду.</p>
+      <div class="fact">Судно перевозило расплавленную серу, которая может затвердевать в трюме и влиять на остойчивость.</div>
+    </div>
+  </div>
+
+  <div class="story">
+    <div class="date">после 1945</div>
+    <div>
+      <h3>Рост легенды</h3>
+      <p>История Flight 19 стала одним из центральных эпизодов легенды. Военно-морские историки подчёркивают, что поздние пересказы нередко добавляли к событиям неподтверждённые детали: например, будто бы пропавшие самолёты были полностью исправны, а погода была идеальной.</p>
+    </div>
+  </div>
+</section>
+
+<section id="science">
+  <h2><span class="num">04</span>Миф или факт?</h2>
+  <p class="sub">Самая интересная часть исследования: сравнить популярные рассказы с тем, что подтверждается источниками.</p>
+
+  <div class="split">
+    <div class="card">
+      <h3>🌑 Популярные версии</h3>
+      <ul>
+        <li>инопланетяне и НЛО;</li>
+        <li>затерянная Атлантида;</li>
+        <li>аномальные магнитные поля;</li>
+        <li>«портал» в другое измерение;</li>
+        <li>гигантские морские чудовища и метан.</li>
+      </ul>
+      <p style="margin-top:12px">Эти идеи относятся к популярной культуре и не имеют научного подтверждения как объяснение исчезновений.</p>
+    </div>
+    <div class="card">
+      <h3>🔬 Что можно проверить</h3>
+      <ul>
+        <li>тропические штормы и ураганы;</li>
+        <li>быстрые изменения погоды;</li>
+        <li>сильное течение Гольфстрим;</li>
+        <li>мелководья и рифы Карибского региона;</li>
+        <li>магнитное склонение компаса;</li>
+        <li>человеческие и навигационные ошибки.</li>
+      </ul>
+      <p style="margin-top:12px">NOAA указывает, что природные условия и человеческий фактор способны объяснить многие происшествия без сверхъестественных причин.</p>
+    </div>
+  </div>
+
+  <h3>Природные факторы подробнее</h3>
+  <div class="prose">
+    <p><strong>Ураганы.</strong> Сезон ураганов в Атлантике длится с июня по ноябрь, и пик приходится на август и сентябрь. Внезапный шторм может быстро превратить спокойный рейс в аварию, особенно для небольших самолётов и лодок.</p>
+    <p><strong>Гольфстрим.</strong> Тёплое океаническое течение проходит через район и может сильно сносить суда и обломки. Если потерпевших не находят сразу, течение может унести их далеко от места происшествия, что затрудняет поиски.</p>
+    <p><strong>Магнитное склонение.</strong> В районе проходит линия, где магнитный и географический север совпадают, — её называют агональной. Рядом с ней стрелка компаса почти не отклоняется, но в других точках поправка может быть заметной. Ошибки, которые возникают при неверной поправке, могут привести к сбою в навигации.</p>
+    <p><strong>Саргассово море.</strong> Это уникальная часть Атлантики без берегов, которая находится в районе треугольника. Там много водорослей саргассума, и на таких участках часто встречаются обломки и мусор. Иногда корабли застревали в водорослях, что тоже вызывало задержки и путаницу.</p>
+  </div>
+
+  <div class="verdict">
+    <strong>Главный вывод:</strong> NOAA сообщает, что нет доказательств, будто загадочные исчезновения происходят в Бермудском треугольнике чаще, чем в других крупных и хорошо используемых районах океана. По сообщениям, страховщики Lloyd's в 1975 году тоже не нашли повышенного риска в этом районе.
+  </div>
+</section>
+
+<section id="myths">
+  <h2><span class="num">05</span>Почему миф так популярен</h2>
+  <p class="sub">Легенда держится не на фактах, а на нескольких психологических и информационных особенностях.</p>
+  <div class="cards">
+    <div class="card"><h3>Выборка</h3><p>Пропажи запоминаются, а тысячи благополучных рейсов через район — нет. Так создаётся искажённое впечатление.</p></div>
+    <div class="card"><h3>Неточные данные</h3><p>Многие книги повторяли одни и те же истории, добавляя детали, которые позже не подтвердились.</p></div>
+    <div class="card"><h3>Тайна привлекает</h3><p>Загадка с «неизвестной силой» продаётся лучше, чем объяснение погодой и ошибкой навигации.</p></div>
+    <div class="card"><h3>Размер и история</h3><p>Район большой, оживлённый и связан с морской историей, что делает его удобным сюжетом для рассказов.</p></div>
+  </div>
+</section>
+
+<section id="quiz">
+  <h2><span class="num">06</span>Интерактивная викторина</h2>
+  <p class="sub">22 вопроса. Выберите по одному варианту в каждом и нажмите «Проверить результат».</p>
+
+  <div class="progress"><div id="progress-bar"></div></div>
+  <div id="quiz-box"></div>
+
+  <div class="quiz-actions">
+    <button id="check-btn" disabled>Проверить результат</button>
+    <button class="restart" id="restart-btn">Начать заново</button>
+  </div>
+  <div class="result" id="result"></div>
+</section>
+
+<section id="sources" class="sources">
+  <h2><span class="num">07</span>Источники</h2>
+  <p class="sub">Материалы, которые использовались при подготовке проекта.</p>
+  <ol>
+    <li><a href="https://oceanservice.noaa.gov/facts/bermudatri.html" target="_blank" rel="noopener">What is the Bermuda Triangle?</a><span>NOAA Ocean Service. Географическое положение, природные условия и научный взгляд на легенду.</span></li>
+    <li><a href="https://www.history.navy.mil/browse-by-topic/disasters-and-phenomena/flight-19.html" target="_blank" rel="noopener">The Loss of Flight 19</a><span>Naval History and Heritage Command. Официальный материал ВМС США об исчезновении Flight 19.</span></li>
+    <li><a href="https://www.history.navy.mil/about-us/leadership/director/directors-corner/h-grams/h-gram-057/h-057-4.html" target="_blank" rel="noopener">H-Gram 057-4: The Disappearance of Flight 19</a><span>Naval History and Heritage Command. Подробный исторический разбор происшествия и его связи с легендой.</span></li>
+    <li><a href="https://www.history.navy.mil/research/library/bibliographies-and-research-guides/bibliographies/naval-adventures-and-misadventures/nautical-mysteries/bermuda-triangle.html" target="_blank" rel="noopener">Bermuda Triangle — Selective Bibliography</a><span>Naval History and Heritage Command. Подборка официальных материалов и литературы по теме.</span></li>
+  </ol>
+  <div class="note">Основные фактические сведения о географии района и Flight 19 проверены по материалам NOAA и Naval History and Heritage Command.</div>
+</section>
+
+</div>
+
+<footer>
+  Индивидуальный проект по географии · «Тайны Бермудского треугольника»<br>
+  Выполнил: Терзи Вадим<br>
+  Группа - CA-1-26<br>
+  «РОССИЙСКИЙ ЭКОНОМИЧЕСКИЙ УНИВЕРСИТЕТ ИМЕНИ Г.В.ПЛЕХАНОВА»
+</footer>
+
+<script>
+const pointsData = {
+  bermuda: { when: "Вершина условного треугольника", title: "Бермудские острова", text: "Британская заморская территория в западной части Северной Атлантики. Одна из трёх точек, которые чаще всего используют для обозначения треугольника." },
+  miami: { when: "Вершина условного треугольника", title: "Майами, Флорида", text: "Крупный город и порт на юго-востоке США. Флорида — ключевой ориентир на западной стороне условного треугольника." },
+  sanjuan: { when: "Вершина условного треугольника", title: "Сан-Хуан, Пуэрто-Рико", text: "Столица Пуэрто-Рико, территории США, расположенной на юго-восточной вершине условного треугольника." },
+  flight19: { when: "Происшествие · 5 декабря 1945", title: "Flight 19", text: "Пять торпедоносцев TBM Avenger пропали во время тренировочного полёта. Точка показана примерно, у Багамских островов." },
+  cyclops: { when: "Происшествие · март 1918", title: "USS Cyclops", text: "Грузовое судно ВМС США пропало с 306 людьми на борту. Точка показана примерно, в районе Карибского моря." },
+  sulphur: { when: "Происшествие · февраль 1963", title: "Marine Sulphur Queen", text: "Танкер с серой пропал у побережья Флориды с 39 членами экипажа. Точка показана примерно." },
+  sargasso: { when: "Природная особенность", title: "Саргассово море", text: "Единственное море в мире без берегов, границами которого служат океанские течения. Оно покрыто плавающими водорослями саргассумом и находится внутри условного треугольника." }
+};
+
+const info = document.getElementById("info");
+function showPoint(id) {
+  const d = pointsData[id];
+  if (!d) return;
+  info.innerHTML = `<div class="when"></div><h3></h3><p></p>`;
+  info.querySelector(".when").textContent = d.when;
+  info.querySelector("h3").textContent = d.title;
+  info.querySelector("p").textContent = d.text;
+}
+
+document.querySelectorAll(".point").forEach(p => {
+  const id = p.dataset.id;
+  p.addEventListener("click", () => showPoint(id));
+  p.addEventListener("mouseenter", () => showPoint(id));
+  p.addEventListener("keydown", e => { if (e.key === "Enter") showPoint(id); });
+});
+
+document.querySelectorAll(".toggles button").forEach(btn => {
+  btn.addEventListener("click", () => {
+    const layer = btn.dataset.layer;
+    btn.classList.toggle("on");
+    const on = btn.classList.contains("on");
+    const show = el => el.style.display = on ? "" : "none";
+    if (layer === "zone") show(document.getElementById("zone"));
+    else if (layer === "vertex") document.querySelectorAll(".point.vertex").forEach(show);
+    else if (layer === "incident") document.querySelectorAll(".point.incident").forEach(show);
+    else if (layer === "sea") {
+      show(document.getElementById("sea"));
+      show(document.getElementById("sea-label"));
+      document.querySelectorAll(".point.sea").forEach(show);
+    }
+  });
+});
+
+const sections = document.querySelectorAll("section[id]");
+const navLinks = document.querySelectorAll("nav a");
+window.addEventListener("scroll", () => {
+  let current = "";
+  sections.forEach(s => { if (window.scrollY >= s.offsetTop - 120) current = s.id; });
+  navLinks.forEach(a => a.classList.toggle("active", a.getAttribute("href") === "#" + current));
+});
+
+// ---------- Викторина: 22 вопроса ----------
+const questions = [
+  { q: "В каком океане находится район Бермудского треугольника?", options: ["Атлантическом", "Тихом", "Индийском", "Северном Ледовитом"], answer: 0 },
+  { q: "Какая точка обычно используется как одна из вершин условного треугольника?", options: ["Бермудские острова", "Гавайские острова", "Мадагаскар", "Новая Зеландия"], answer: 0 },
+  { q: "Какой статус имеют границы Бермудского треугольника?", options: ["Они условны и официально не установлены", "Они закреплены международным договором", "Это государственная граница", "Это границы отдельного моря"], answer: 0 },
+  { q: "Что произошло с Flight 19?", options: ["Пять военных самолётов исчезли во время тренировочного полёта", "Пассажирский лайнер сел на Бермуды", "Корабль столкнулся с рифом у Европы", "Самолёты совершили аварийную посадку на Кубе"], answer: 0 },
+  { q: "Сколько человек находилось на пяти самолётах Flight 19?", options: ["14", "5", "13", "24"], answer: 0 },
+  { q: "Какой природный фактор NOAA связывает с опасными условиями в районе?", options: ["Тропические штормы и ураганы", "Полярные метели", "Ледниковые щиты", "Муссоны Южной Азии"], answer: 0 },
+  { q: "Какое океаническое течение может быстро менять условия и переносить обломки?", options: ["Гольфстрим", "Куросио", "Бенгельское течение", "Перуанское течение"], answer: 0 },
+  { q: "Что относится к популярным, но не подтверждённым научно версиям?", options: ["Похищение инопланетянами", "Тропический шторм", "Навигационная ошибка", "Сильное океаническое течение"], answer: 0 },
+  { q: "Что верно о частоте загадочных исчезновений?", options: ["Нет доказательств, что они происходят там чаще, чем в других крупных районах океана", "Они гарантированно происходят каждый месяц", "Район полностью закрыт для судоходства", "NOAA доказала существование сверхъестественной силы"], answer: 0 },
+  { q: "Какой подход лучше всего подходит для географического исследования этой темы?", options: ["Сравнивать легенды с картами, документами и научными данными", "Принимать все легенды за доказанные факты", "Использовать только художественные фильмы", "Не учитывать природные условия"], answer: 0 },
+  { q: "Кто ввёл название «Бермудский треугольник» в статье 1964 года?", options: ["Винсент Гэддис", "Чарльз Берлиц", "Христофор Колумб", "Эрнест Хемингуэй"], answer: 0 },
+  { q: "Сколько человек было на борту USS Cyclops?", options: ["306", "39", "14", "13"], answer: 0 },
+  { q: "Какое море находится внутри района треугольника?", options: ["Саргассово", "Балтийское", "Красное", "Чёрное"], answer: 0 },
+  { q: "В какие месяцы длится основной сезон ураганов в Атлантике?", options: ["С июня по ноябрь", "С декабря по февраль", "С марта по май", "Только в июле"], answer: 0 },
+  { q: "Что такое агональная линия, которая проходит через район?", options: ["Линия, где магнитный и географический север совпадают", "Граница льдов", "Граница часовых поясов", "Линия морского течения"], answer: 0 },
+  { q: "Какая территория относится к Великобритании и находится в районе треугольника?", options: ["Бермудские острова", "Пуэрто-Рико", "Куба", "Багамы"], answer: 0 },
+  { q: "Какой корабль пропал в 1963 году у побережья Флориды?", options: ["Marine Sulphur Queen", "Титаник", "Бисмарк", "Лузитания"], answer: 0 },
+  { q: "Какой самолёт отправили на поиски Flight 19?", options: ["PBM Mariner", "TBM Avenger", "Boeing 747", "Douglas DC-3"], answer: 0 },
+  { q: "Почему поздние пересказы историй о Flight 19 могут искажать реальные события?", options: ["Они добавляли неподтверждённые детали", "Они всегда совпадают с официальными документами", "Они основаны только на спутниковых снимках", "Их писали только военные историки"], answer: 0 },
+  { q: "Что такое Гольфстрим?", options: ["Тёплое океаническое течение в Атлантике", "Холодное течение у берегов Африки", "Пролив между Бермудами и Флоридой", "Вид морских водорослей"], answer: 0 },
+  { q: "Какое из этих утверждений о Star Tiger верно?", options: ["Самолёт пропал на маршруте между Бермудами и Азорами, вне основной зоны треугольника", "Самолёт пропал в центре Карибского моря", "Самолёт так и не был построен", "Самолёт совершил посадку на Кубе"], answer: 0 },
+  { q: "Что означает фраза «условные границы» в контексте треугольника?", options: ["Границы проводят по-разному разные авторы", "Границы утверждены ООН", "Границы совпадают с государственными", "Границ не существует вообще, ведь это море"], answer: 0 },
+  { q: "Какой подход к легенде наиболее научный?", options: ["Проверять факты по первоисточникам и официальным данным", "Верить очевидцам без проверки", "Ориентироваться на заголовки в интернете", "Считать любую пропажу доказательством чудес"], answer: 0 }
+];
+
+const userAnswers = new Array(questions.length).fill(null);
+let checked = false;
+const quizBox = document.getElementById("quiz-box");
+const checkBtn = document.getElementById("check-btn");
+const restartBtn = document.getElementById("restart-btn");
+const resultEl = document.getElementById("result");
+const progressBar = document.getElementById("progress-bar");
+
+let prepared = [];
+function prepare() {
+  prepared = questions.map(q => {
+    const correctText = q.options[q.answer];
+    const shuffled = [...q.options].sort(() => Math.random() - 0.5);
+    return { q: q.q, options: shuffled, correct: shuffled.indexOf(correctText) };
+  });
+}
+
+function renderQuiz() {
+  quizBox.innerHTML = "";
+  prepared.forEach((item, qi) => {
+    const card = document.createElement("div");
+    card.className = "quiz-q";
+    const h = document.createElement("h3");
+    h.textContent = (qi + 1) + ". " + item.q;
+    card.appendChild(h);
+
+    const opts = document.createElement("div");
+    opts.className = "opts";
+    item.options.forEach((text, oi) => {
+      const b = document.createElement("button");
+      b.className = "opt";
+      b.textContent = text;
+      if (checked) {
+        b.disabled = true;
+        if (oi === item.correct) b.classList.add("correct");
+        else if (userAnswers[qi] === oi) b.classList.add("wrong");
+      } else if (userAnswers[qi] === oi) {
+        b.classList.add("selected");
+      }
+      b.addEventListener("click", () => {
+        if (checked) return;
+        userAnswers[qi] = oi;
+        updateProgress();
+        renderQuiz();
+      });
+      opts.appendChild(b);
+    });
+    card.appendChild(opts);
+    quizBox.appendChild(card);
+  });
+  updateProgress();
+}
+
+function updateProgress() {
+  const answered = userAnswers.filter(a => a !== null).length;
+  progressBar.style.width = (answered / questions.length * 100) + "%";
+  checkBtn.disabled = checked || answered < questions.length;
+}
+
+checkBtn.addEventListener("click", () => {
+  checked = true;
+  const score = prepared.reduce((s, item, i) => s + (userAnswers[i] === item.correct ? 1 : 0), 0);
+  let msg;
+  if (score === questions.length) msg = "Отлично! " + score + " из " + questions.length;
+  else if (score >= questions.length * 0.7) msg = "Хороший результат: " + score + " из " + questions.length;
+  else msg = "Результат: " + score + " из " + questions.length + ". Попробуйте ещё раз!";
+  resultEl.textContent = msg;
+  renderQuiz();
+});
+
+restartBtn.addEventListener("click", () => {
+  checked = false;
+  userAnswers.fill(null);
+  resultEl.textContent = "";
+  prepare();
+  renderQuiz();
+});
+
+prepare();
+renderQuiz();
+</script>
+</body>
+</html>
